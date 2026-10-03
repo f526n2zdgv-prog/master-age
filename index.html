@@ -1,1 +1,286 @@
-github.com/f526n2zdgv-prog/master-age/edit/main/index.html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17372c">
+<title>MASTER AI | First-customer command center</title>
+<style>
+:root{--ink:#17251f;--muted:#6f7c75;--line:#e5e9e3;--canvas:#f3f5f0;--paper:#fff;--forest:#17372c;--mint:#c9f27e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:15px "Avenir Next",Avenir,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:var(--forest);color:#fff;padding:14px 16px 0;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:32px;height:32px;border-radius:10px;background:var(--mint);color:#102a21;display:grid;place-items:center;font:700 19px Georgia,serif}
+.brand b{font-size:16px}.brand b span{color:var(--mint)}
+nav{display:flex;gap:4px;margin-top:12px;overflow-x:auto}
+nav button{flex:1;min-height:42px;border:0;background:none;color:#c0d0c6;font-size:13px;border-bottom:2px solid transparent;white-space:nowrap;padding:0 10px}
+nav button.on{color:#fff;border-color:var(--mint)}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font:400 28px/1.15 Georgia,serif;margin:0 0 6px}
+h2{font-size:15px;margin:0 0 4px}
+.sub,.hint{color:var(--muted);font-size:12px;margin:0}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:14px;box-shadow:0 12px 34px rgba(27,45,35,.045)}
+.goal{background:var(--forest);color:#fff;border-radius:10px;padding:16px;margin-top:16px}
+.goal small{color:#acc0b3}
+.goal h2{font:400 19px/1.3 Georgia,serif;color:#d0f08f;margin:6px 0}
+.bar{height:6px;background:rgba(255,255,255,.18);border-radius:8px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;background:var(--mint);width:0;transition:width .3s}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.m{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px}
+.m span{display:block;color:var(--muted);font-size:10px}
+.m b{font:400 22px Georgia,serif}
+label{display:block;font-size:11px;font-weight:600;color:#66746c;margin:10px 0 5px}
+input,select,textarea{width:100%;min-height:42px;border:1px solid #dfe5dd;border-radius:7px;background:#fbfcfa;padding:9px 11px}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #acd766;outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{min-height:42px;border:0;border-radius:7px;background:var(--forest);color:#fff;font-weight:650;padding:0 16px;margin-top:12px}
+.btn.alt{background:#eef3ea;color:var(--forest)}
+.btn.sm{min-height:34px;font-size:12px;margin:0;padding:0 10px}
+.task{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-top:1px solid #edf0eb}
+.task:first-child{border-top:0}
+.chk{width:26px;height:26px;flex:none;border:1px solid #cfd9cb;border-radius:7px;background:#fff;padding:0;font-weight:700;color:transparent}
+.chk[aria-pressed=true]{background:#eaf5df;border-color:#7ba45c;color:#426432}
+.task.done span{text-decoration:line-through;color:#98a39b}
+.lead{border-top:1px solid #edf0eb;padding:12px 0}
+.lead:first-child{border-top:0}
+.lead h3{margin:0 0 5px;font-size:14px}
+.lead p{margin:5px 0 0;font-size:12px;color:#55645b}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;background:#f2f5ef;color:#617066;margin-right:5px}
+.tag.due{background:#fbe3da;color:#9a4a2e}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.acts .full{grid-column:1/-1;display:flex;gap:8px}
+.empty{color:var(--muted);font-size:13px;margin:6px 0 0}
+.view{display:none}
+.view.on{display:block}
+@media(max-width:420px){.metrics{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<div class="brand"><span class="mark">M</span><b>master<span>ai</span></b></div>
+<nav>
+<button data-v="today" class="on">Today</button>
+<button data-v="leads">Leads</button>
+<button data-v="msg">Messages</button>
+<button data-v="offers">Offers</button>
+</nav>
+</header>
+<main>
+
+<section class="view on" id="v-today">
+<h1>Win my first paying customer</h1>
+<p class="sub">AI-powered websites for cafés, restaurants and local businesses in Germany.</p>
+<div class="goal">
+<small>North star</small>
+<h2>1 paying customer for my website business</h2>
+<div class="bar"><i id="gbar"></i></div>
+<p class="sub" id="gtxt" style="color:#acc0b3;margin-top:8px"></p>
+</div>
+<div class="metrics">
+<div class="m"><span>Leads</span><b id="m1">0</b></div>
+<div class="m"><span>Contacted</span><b id="m2">0</b></div>
+<div class="m"><span>Replies</span><b id="m3">0</b></div>
+<div class="m"><span>Won</span><b id="m4">0</b></div>
+</div>
+<div class="card">
+<h2>Today's tasks</h2>
+<p class="sub" id="tcount"></p>
+<div id="tasks"></div>
+</div>
+<div class="card">
+<h2>Follow-ups due</h2>
+<div id="due"></div>
+</div>
+</section>
+
+<section class="view" id="v-leads">
+<h1>Leads</h1>
+<p class="sub">Local businesses you found and where each conversation stands.</p>
+<div class="card">
+<h2>Add a lead</h2>
+<label for="l-name">Business name</label>
+<input id="l-name" maxlength="80" placeholder="e.g. Café Sonnenschein">
+<div class="row">
+<div><label for="l-type">Type</label>
+<select id="l-type"><option>Café</option><option>Restaurant</option><option>Bakery</option><option>Hairdresser</option><option>Other</option></select></div>
+<div><label for="l-city">City</label><input id="l-city" maxlength="50" placeholder="e.g. Köln"></div>
+</div>
+<label for="l-prob">Website problem (finish: "…online ___")</label>
+<input id="l-prob" maxlength="120" placeholder="e.g. keine Speisekarte auf dem Handy hat">
+<label for="l-notes">Notes (name of contact, what was said)</label>
+<textarea id="l-notes" maxlength="400"></textarea>
+<button class="btn" id="l-add" type="button">Save lead</button>
+</div>
+<div class="card"><div id="leads"></div></div>
+</section>
+
+<section class="view" id="v-msg">
+<h1>German messages</h1>
+<p class="sub">Fill in the blanks, then copy the text. Always read and adjust it before you use it.</p>
+<div class="card">
+<label for="m-lead">Use a saved lead</label>
+<select id="m-lead"></select>
+<label for="m-me">Your name</label><input id="m-me" maxlength="60">
+<div class="row">
+<div><label for="m-biz">Business</label><input id="m-biz" maxlength="80"></div>
+<div><label for="m-city">City</label><input id="m-city" maxlength="50"></div>
+</div>
+<label for="m-contact">Greeting name (optional, e.g. Frau Meier)</label><input id="m-contact" maxlength="50">
+<label for="m-prob">Problem ("…dass der Betrieb online ___")</label><input id="m-prob" maxlength="120" placeholder="schwer zu finden ist">
+<label for="m-tpl">Message type</label>
+<select id="m-tpl">
+<option value="visit">Visit in person: opening words</option>
+<option value="letter">Letter</option>
+<option value="follow">Follow-up after a conversation</option>
+<option value="offer">Send my offer</option>
+</select>
+<label for="m-pkg">Package (for the offer)</label><select id="m-pkg"></select>
+<label for="m-out">Your message</label>
+<textarea id="m-out" style="min-height:230px"></textarea>
+<button class="btn" id="copy" type="button">Copy message</button>
+<p class="hint" style="margin-top:12px">Germany: unsolicited emails, calls or chat messages to businesses can break advertising law. Visits and letters are the safer start. Check the rules before you send anything. This is not legal advice.</p>
+</div>
+</section>
+
+<section class="view" id="v-offers">
+<h1>My offers</h1>
+<p class="sub">Example prices. Change them to what you want to charge. These texts go into your German offer message.</p>
+<div id="offers"></div>
+</section>
+
+</main>
+<script>
+const $=s=>document.querySelector(s),K='mai_';
+const load=(k,d)=>{try{const v=localStorage.getItem(K+k);return v?JSON.parse(v):d}catch(e){return d}};
+const save=(k,v)=>{try{localStorage.setItem(K+k,JSON.stringify(v))}catch(e){}};
+const el=(t,p={},...c)=>{const e=document.createElement(t);Object.assign(e,p);c.flat().forEach(x=>e.append(x));return e};
+const today=()=>new Date().toLocaleDateString('sv-SE');
+const ST=['New','Contacted','Replied','Offer sent','Won','Lost'];
+const TASKS=['Find 5 local cafés or restaurants with weak websites (use Google Maps)','Write down 1–2 concrete website problems for each','Add them in the Leads tab','Visit or send a letter to 2 businesses (see Messages)','Follow up on every lead that is due','Work 30 minutes on your demo website'];
+const STAGES=['Add your first lead','Leads found','First contact made','First reply received','Offer sent','First customer won!'];
+let leads=load('leads',[]);
+let offers=load('offers',[
+{n:'Start',p:'290',inc:'Moderne Website mit 1 Seite\nOptimiert fürs Handy\nÖffnungszeiten, Speisekarte und Kontakt'},
+{n:'Standard',p:'490',inc:'Website mit bis zu 3 Seiten\nOptimiert fürs Handy\nKontaktformular und Google-Maps-Karte'},
+{n:'Plus',p:'790',inc:'Website mit bis zu 5 Seiten\nGoogle-Unternehmensprofil eingerichtet\n1 Monat Änderungen inklusive'}]);
+let tk=load('tasks',{d:'',done:[]});
+if(tk.d!==today())tk={d:today(),done:[]};
+
+function show(v){
+document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+
+const isDue=l=>l.fu&&l.fu<=today()&&!['Won','Lost'].includes(l.st);
+
+function leadCard(l,full){
+const c=el('div',{className:'lead'},el('h3',{textContent:l.name}),
+el('span',{className:'tag',textContent:l.type}),
+el('span',{className:'tag',textContent:l.city||'–'}),
+el('span',{className:'tag',textContent:l.st}));
+if(isDue(l))c.append(el('span',{className:'tag due',textContent:'Follow-up due'}));
+if(l.prob)c.append(el('p',{textContent:'Problem: '+l.prob}));
+if(l.notes)c.append(el('p',{textContent:l.notes}));
+if(!full)return c;
+const s=el('select');
+ST.forEach(x=>{const o=el('option',{value:x,textContent:x});if(x===l.st)o.selected=true;s.append(o)});
+s.onchange=()=>{l.st=s.value;save('leads',leads);rAll()};
+const f=el('input',{type:'date',value:l.fu||''});
+f.onchange=()=>{l.fu=f.value;save('leads',leads);rAll()};
+const w=el('button',{className:'btn sm',type:'button',textContent:'Write message'});
+w.onclick=()=>{show('msg');$('#m-lead').value=l.id;prefill()};
+const d=el('button',{className:'btn sm alt',type:'button',textContent:'Delete'});
+d.onclick=()=>{if(confirm('Delete this lead?')){leads=leads.filter(x=>x!==l);save('leads',leads);rAll()}};
+c.append(el('div',{className:'acts'},el('div',{},el('label',{textContent:'Status'}),s),el('div',{},el('label',{textContent:'Follow-up date'}),f),el('div',{className:'full'},w,d)));
+return c;
+}
+
+function rToday(){
+$('#tasks').replaceChildren(...TASKS.map((x,i)=>{
+const d=tk.done.includes(i);
+const b=el('button',{className:'chk',type:'button',textContent:'✓'});
+b.setAttribute('aria-pressed',String(d));
+b.setAttribute('aria-label',x);
+b.onclick=()=>{tk.done=d?tk.done.filter(n=>n!==i):[...tk.done,i];save('tasks',tk);rToday()};
+return el('div',{className:'task'+(d?' done':'')},b,el('span',{textContent:x}));
+}));
+$('#tcount').textContent=tk.done.length+' of '+TASKS.length+' done today';
+const has=a=>leads.some(l=>a.includes(l.st));
+const st=has(['Won'])?5:has(['Offer sent'])?4:has(['Replied'])?3:has(['Contacted'])?2:leads.length?1:0;
+$('#gbar').style.width=(st/5*100)+'%';
+$('#gtxt').textContent=STAGES[st];
+$('#m1').textContent=leads.length;
+$('#m2').textContent=leads.filter(l=>l.st!=='New').length;
+$('#m3').textContent=leads.filter(l=>['Replied','Offer sent','Won'].includes(l.st)).length;
+$('#m4').textContent=leads.filter(l=>l.st==='Won').length;
+const due=leads.filter(isDue);
+$('#due').replaceChildren(...(due.length?due.map(l=>leadCard(l,false)):[el('p',{className:'empty',textContent:'Nothing due. Set a follow-up date on a lead.'})]));
+}
+
+function rLeads(){
+$('#leads').replaceChildren(...(leads.length?leads.map(l=>leadCard(l,true)):[el('p',{className:'empty',textContent:'No leads yet. Add your first one above.'})]));
+}
+
+function fillSelects(){
+const ml=$('#m-lead'),cur=ml.value;
+ml.replaceChildren(el('option',{value:'',textContent:'None'}),...leads.map(l=>el('option',{value:l.id,textContent:l.name})));
+ml.value=cur;
+const mp=$('#m-pkg'),pc=mp.value||'0';
+mp.replaceChildren(...offers.map((o,i)=>el('option',{value:i,textContent:o.n+' – '+o.p+' €'})));
+mp.value=pc;
+}
+
+function rAll(){rLeads();rToday();fillSelects();gen()}
+
+$('#l-add').onclick=()=>{
+const name=$('#l-name').value.trim();
+if(!name){$('#l-name').focus();return}
+leads.unshift({id:String(Date.now()),name,type:$('#l-type').value,city:$('#l-city').value.trim(),prob:$('#l-prob').value.trim(),notes:$('#l-notes').value.trim(),st:'New',fu:''});
+save('leads',leads);
+['#l-name','#l-city','#l-prob','#l-notes'].forEach(s=>$(s).value='');
+rAll();
+};
+
+function prefill(){
+const l=leads.find(x=>x.id===$('#m-lead').value);
+if(l){$('#m-biz').value=l.name;$('#m-city').value=l.city;$('#m-prob').value=l.prob}
+gen();
+}
+
+function gen(){
+const me=$('#m-me').value.trim()||'[Ihr Name]',biz=$('#m-biz').value.trim()||'[Betrieb]',city=$('#m-city').value.trim()||'[Stadt]';
+const ct=$('#m-contact').value.trim(),g=ct?', '+ct:'';
+const pr=$('#m-prob').value.trim()||'[Problem, z. B. schwer zu finden ist]';
+const o=offers[Number($('#m-pkg').value)||0]||{n:'',p:'',inc:''};
+const T={
+visit:`Guten Tag${g}, mein Name ist ${me}. Ich erstelle einfache, moderne Websites für lokale Betriebe in ${city}. Mir ist aufgefallen, dass ${biz} online ${pr}. Haben Sie kurz zwei Minuten? Ich zeige Ihnen gern auf dem Handy, wie das aussehen könnte – ganz unverbindlich.`,
+letter:`Sehr geehrte Damen und Herren${ct?' ('+ct+')':''},\n\nmein Name ist ${me} und ich erstelle Websites für lokale Betriebe in ${city}. Mir ist aufgefallen, dass ${biz} online ${pr}.\n\nGern zeige ich Ihnen unverbindlich einen kurzen Entwurf, damit Sie sich ein Bild machen können.\n\nÜber ein kurzes Gespräch würde ich mich freuen. Sie erreichen mich unter: [Telefon / E-Mail].\n\nFreundliche Grüße\n${me}`,
+follow:`Guten Tag${g}, vielen Dank für das nette Gespräch. Wie besprochen melde ich mich noch einmal wegen einer neuen Website für ${biz}. Haben Sie diese Woche kurz Zeit, damit ich Ihnen meinen Vorschlag zeigen kann?\n\nFreundliche Grüße\n${me}`,
+offer:`Guten Tag${g},\n\nvielen Dank für Ihr Interesse. Hier mein Angebot für ${biz}:\n\n${o.n} – ${o.p} €\n${o.inc}\n\nWenn Sie möchten, starte ich diese Woche. Bei Fragen melden Sie sich gern jederzeit.\n\nFreundliche Grüße\n${me}`};
+$('#m-out').value=T[$('#m-tpl').value];
+}
+['m-me','m-biz','m-city','m-contact','m-prob','m-tpl','m-pkg'].forEach(i=>$('#'+i).oninput=()=>{if(i==='m-me')save('me',$('#m-me').value);gen()});
+$('#m-lead').onchange=prefill;
+$('#copy').onclick=async()=>{
+const o=$('#m-out'),b=$('#copy');
+try{await navigator.clipboard.writeText(o.value)}catch(e){o.select();document.execCommand('copy')}
+b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy message',1500);
+};
+
+function rOffers(){
+$('#offers').replaceChildren(...offers.map((o,i)=>{
+const mk=(label,key,tag)=>{const f=el(tag,{value:o[key]});f.oninput=()=>{o[key]=f.value;save('offers',offers);fillSelects();gen()};return el('div',{},el('label',{textContent:label}),f)};
+return el('div',{className:'card'},el('h2',{textContent:'Package '+(i+1)}),el('div',{className:'row'},mk('Name','n','input'),mk('Price (€)','p','input')),mk('What is included (one per line, in German)','inc','textarea'));
+}));
+}
+
+$('#m-me').value=load('me','');
+rOffers();rAll();
+</script>
+</body>
+</html>
