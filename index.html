@@ -102,6 +102,14 @@ input[type=date]{min-width:0;max-width:100%}
 <p class="sub">Build a sample website for a business.</p>
 <a class="btn" style="display:inline-block;text-decoration:none;line-height:42px" href="generator.html">Open website generator</a>
 </div>
+<div class="card">
+<h2>Backup</h2>
+<p class="sub">Your data lives only in this browser. Copy a backup and keep it in your private Notes app. Never put it in GitHub, which is public.</p>
+<button class="btn" id="bk-copy" type="button">Copy backup</button>
+<label for="bk-box">Restore from a backup</label>
+<textarea id="bk-box" placeholder="Paste a backup here"></textarea>
+<button class="btn alt" id="bk-restore" type="button">Restore backup</button>
+</div>
 </section>
 
 <section class="view" id="v-leads">
@@ -238,6 +246,19 @@ pd.onchange=()=>{l.paid=pd.checked;save('leads',leads);rToday()};
 const lb=el('label',{},pd,' Paid');
 lb.style.cssText='display:flex;gap:8px;align-items:center;margin:0;font-size:13px';
 c.append(el('div',{className:'acts'},el('div',{},el('label',{textContent:'Price agreed (€)'}),pr),el('div',{},el('label',{textContent:'Payment'}),lb)));
+const hd=el('label',{});
+const cnt=()=>hd.textContent='Delivery checklist ('+(l.del||[]).length+'/'+DEL.length+')';
+cnt();
+const ck=el('div',{},hd);
+DEL.forEach((x,i)=>{
+const cb=el('input',{type:'checkbox',checked:(l.del||[]).includes(i)});
+cb.style.cssText='width:22px;min-height:0;height:22px';
+cb.onchange=()=>{l.del=cb.checked?[...(l.del||[]),i]:(l.del||[]).filter(n=>n!==i);save('leads',leads);cnt()};
+const lab=el('label',{},cb,' '+x);
+lab.style.cssText='display:flex;gap:8px;align-items:center;margin:6px 0;font-size:13px;font-weight:400';
+ck.append(lab);
+});
+c.append(ck);
 }
 return c;
 }
@@ -337,6 +358,22 @@ $('#a-copy').onclick=async()=>{
 const o=$('#a-out'),b=$('#a-copy');
 try{await navigator.clipboard.writeText(o.value)}catch(e){o.select();document.execCommand('copy')}
 b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy request',1500);
+};
+
+const DEL=['Get logo, photos, menu and hours','Build the draft','Owner approves the draft','Publish the website','Send the invoice'];
+$('#bk-copy').onclick=async()=>{
+const t=JSON.stringify({leads,offers}),b=$('#bk-copy');
+try{await navigator.clipboard.writeText(t)}catch(e){$('#bk-box').value=t;$('#bk-box').select();document.execCommand('copy')}
+b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy backup',1500);
+};
+$('#bk-restore').onclick=()=>{
+try{
+const d=JSON.parse($('#bk-box').value);
+if(!Array.isArray(d.leads)||!Array.isArray(d.offers)||d.offers.length!==3||d.leads.some(l=>!l||typeof l.name!=='string'))throw 0;
+if(!confirm('Replace current data with this backup?'))return;
+leads=d.leads;offers=d.offers;save('leads',leads);save('offers',offers);
+rOffers();rAll();$('#bk-box').value='';alert('Backup restored.');
+}catch(e){alert('That does not look like a MASTER AI backup.')}
 };
 
 function rOffers(){
