@@ -94,6 +94,11 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #
 <h2>Follow-ups due</h2>
 <div id="due"></div>
 </div>
+<div class="card">
+<h2>Tools</h2>
+<p class="sub">Build a sample website for a business.</p>
+<a class="btn" style="display:inline-block;text-decoration:none;line-height:42px" href="generator.html">Open website generator</a>
+</div>
 </section>
 
 <section class="view" id="v-leads">
@@ -136,8 +141,10 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #
 <option value="letter">Letter</option>
 <option value="follow">Follow-up after a conversation</option>
 <option value="offer">Send my offer</option>
+<option value="prop">Proposal (Angebot) with terms</option>
 </select>
 <label for="m-pkg">Package (for the offer)</label><select id="m-pkg"></select>
+<div class="row"><div><label for="m-del">Delivery time</label><input id="m-del" maxlength="40" value="ca. 2 Wochen"></div><div><label for="m-pay">Payment</label><input id="m-pay" maxlength="60" value="50 % Anzahlung, Rest bei Übergabe"></div></div>
 <label for="m-out">Your message</label>
 <textarea id="m-out" style="min-height:230px"></textarea>
 <button class="btn" id="copy" type="button">Copy message</button>
@@ -185,8 +192,11 @@ el('span',{className:'tag',textContent:l.city||'–'}),
 el('span',{className:'tag',textContent:l.st}));
 if(isDue(l))c.append(el('span',{className:'tag due',textContent:'Follow-up due'}));
 if(l.prob)c.append(el('p',{textContent:'Problem: '+l.prob}));
-if(l.notes)c.append(el('p',{textContent:l.notes}));
-if(!full)return c;
+if(!full){if(l.notes)c.append(el('p',{textContent:l.notes}));return c}
+const nt=el('textarea',{value:l.notes||'',placeholder:'Notes: contact name, what was said'});
+nt.style.cssText='min-height:64px;margin-top:8px';
+nt.onchange=()=>{l.notes=nt.value;save('leads',leads)};
+c.append(nt);
 const s=el('select');
 ST.forEach(x=>{const o=el('option',{value:x,textContent:x});if(x===l.st)o.selected=true;s.append(o)});
 s.onchange=()=>{l.st=s.value;save('leads',leads);rAll()};
@@ -197,6 +207,16 @@ w.onclick=()=>{show('msg');$('#m-lead').value=l.id;prefill()};
 const d=el('button',{className:'btn sm alt',type:'button',textContent:'Delete'});
 d.onclick=()=>{if(confirm('Delete this lead?')){leads=leads.filter(x=>x!==l);save('leads',leads);rAll()}};
 c.append(el('div',{className:'acts'},el('div',{},el('label',{textContent:'Status'}),s),el('div',{},el('label',{textContent:'Follow-up date'}),f),el('div',{className:'full'},w,d)));
+if(l.st==='Won'){
+const pr=el('input',{type:'number',value:l.price||'',placeholder:'e.g. 490',inputMode:'decimal'});
+pr.onchange=()=>{l.price=pr.value;save('leads',leads);rToday()};
+const pd=el('input',{type:'checkbox',checked:!!l.paid});
+pd.style.cssText='width:22px;min-height:0;height:22px';
+pd.onchange=()=>{l.paid=pd.checked;save('leads',leads);rToday()};
+const lb=el('label',{},pd,' Paid');
+lb.style.cssText='display:flex;gap:8px;align-items:center;margin:0;font-size:13px';
+c.append(el('div',{className:'acts'},el('div',{},el('label',{textContent:'Price agreed (€)'}),pr),el('div',{},el('label',{textContent:'Payment'}),lb)));
+}
 return c;
 }
 
@@ -213,7 +233,8 @@ $('#tcount').textContent=tk.done.length+' of '+TASKS.length+' done today';
 const has=a=>leads.some(l=>a.includes(l.st));
 const st=has(['Won'])?5:has(['Offer sent'])?4:has(['Replied'])?3:has(['Contacted'])?2:leads.length?1:0;
 $('#gbar').style.width=(st/5*100)+'%';
-$('#gtxt').textContent=STAGES[st];
+const earned=leads.filter(l=>l.paid).reduce((a,l)=>a+(Number(l.price)||0),0);
+$('#gtxt').textContent=STAGES[st]+(earned?' · Paid so far: '+earned+' €':'');
 $('#m1').textContent=leads.length;
 $('#m2').textContent=leads.filter(l=>l.st!=='New').length;
 $('#m3').textContent=leads.filter(l=>['Replied','Offer sent','Won'].includes(l.st)).length;
@@ -261,10 +282,11 @@ const T={
 visit:`Guten Tag${g}, mein Name ist ${me}. Ich erstelle einfache, moderne Websites für lokale Betriebe in ${city}. Mir ist aufgefallen, dass ${biz} online ${pr}. Haben Sie kurz zwei Minuten? Ich zeige Ihnen gern auf dem Handy, wie das aussehen könnte – ganz unverbindlich.`,
 letter:`Sehr geehrte Damen und Herren${ct?' ('+ct+')':''},\n\nmein Name ist ${me} und ich erstelle Websites für lokale Betriebe in ${city}. Mir ist aufgefallen, dass ${biz} online ${pr}.\n\nGern zeige ich Ihnen unverbindlich einen kurzen Entwurf, damit Sie sich ein Bild machen können.\n\nÜber ein kurzes Gespräch würde ich mich freuen. Sie erreichen mich unter: [Telefon / E-Mail].\n\nFreundliche Grüße\n${me}`,
 follow:`Guten Tag${g}, vielen Dank für das nette Gespräch. Wie besprochen melde ich mich noch einmal wegen einer neuen Website für ${biz}. Haben Sie diese Woche kurz Zeit, damit ich Ihnen meinen Vorschlag zeigen kann?\n\nFreundliche Grüße\n${me}`,
-offer:`Guten Tag${g},\n\nvielen Dank für Ihr Interesse. Hier mein Angebot für ${biz}:\n\n${o.n} – ${o.p} €\n${o.inc}\n\nWenn Sie möchten, starte ich diese Woche. Bei Fragen melden Sie sich gern jederzeit.\n\nFreundliche Grüße\n${me}`};
+offer:`Guten Tag${g},\n\nvielen Dank für Ihr Interesse. Hier mein Angebot für ${biz}:\n\n${o.n} – ${o.p} €\n${o.inc}\n\nWenn Sie möchten, starte ich diese Woche. Bei Fragen melden Sie sich gern jederzeit.\n\nFreundliche Grüße\n${me}`,
+prop:`Sehr geehrte Damen und Herren${ct?' ('+ct+')':''},\n\nvielen Dank für das Gespräch. Gern unterbreite ich Ihnen folgendes Angebot für ${biz}:\n\nLeistung: ${o.n}\n${o.inc}\n\nPreis: ${o.p} € [inkl. / zzgl. USt. – bitte klären]\nLieferzeit: ${$('#m-del').value.trim()}\nZahlung: ${$('#m-pay').value.trim()}\n\nDieses Angebot gilt 14 Tage. Texte und Fotos stimmen wir gemeinsam ab.\n\nBei Fragen melde ich mich gern persönlich.\n\nFreundliche Grüße\n${me}`};
 $('#m-out').value=T[$('#m-tpl').value];
 }
-['m-me','m-biz','m-city','m-contact','m-prob','m-tpl','m-pkg'].forEach(i=>$('#'+i).oninput=()=>{if(i==='m-me')save('me',$('#m-me').value);gen()});
+['m-me','m-biz','m-city','m-contact','m-prob','m-tpl','m-pkg','m-del','m-pay'].forEach(i=>$('#'+i).oninput=()=>{if(i==='m-me')save('me',$('#m-me').value);gen()});
 $('#m-lead').onchange=prefill;
 $('#copy').onclick=async()=>{
 const o=$('#m-out'),b=$('#copy');
