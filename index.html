@@ -35,7 +35,7 @@ label{display:block;font-size:11px;font-weight:600;color:#66746c;margin:10px 0 5
 input,select,textarea{width:100%;min-height:42px;border:1px solid #dfe5dd;border-radius:7px;background:#fbfcfa;padding:9px 11px}
 textarea{min-height:90px;resize:vertical}
 input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #acd766;outline-offset:1px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .btn{min-height:42px;border:0;border-radius:7px;background:var(--forest);color:#fff;font-weight:650;padding:0 16px;margin-top:12px}
 .btn.alt{background:#eef3ea;color:var(--forest)}
 .btn.sm{min-height:34px;font-size:12px;margin:0;padding:0 10px}
@@ -50,11 +50,13 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #
 .lead p{margin:5px 0 0;font-size:12px;color:#55645b}
 .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;background:#f2f5ef;color:#617066;margin-right:5px}
 .tag.due{background:#fbe3da;color:#9a4a2e}
-.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.acts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:10px}
 .acts .full{grid-column:1/-1;display:flex;gap:8px}
 .empty{color:var(--muted);font-size:13px;margin:6px 0 0}
 .view{display:none}
 .view.on{display:block}
+body{overflow-x:hidden}
+input[type=date]{min-width:0;max-width:100%}
 @media(max-width:420px){.metrics{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -66,6 +68,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #
 <button data-v="leads">Leads</button>
 <button data-v="msg">Messages</button>
 <button data-v="offers">Offers</button>
+<button data-v="ai">Ask AI</button>
 </nav>
 </header>
 <main>
@@ -156,6 +159,25 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #
 <h1>My offers</h1>
 <p class="sub">Example prices. Change them to what you want to charge. These texts go into your German offer message.</p>
 <div id="offers"></div>
+</section>
+
+<section class="view" id="v-ai">
+<h1>Ask AI</h1>
+<p class="sub">Prepare a request, copy it, and paste it into Claude or ChatGPT. Always check facts yourself.</p>
+<div class="card">
+<label for="a-lead">Lead (optional)</label><select id="a-lead"></select>
+<label for="a-task">What do you need?</label>
+<select id="a-task">
+<option value="check">Check a business's online presence</option>
+<option value="find">How to spot leads in my city</option>
+<option value="plan">Plan my day</option>
+<option value="reply">Answer an owner's reply</option>
+<option value="visit">Prepare an in-person visit</option>
+</select>
+<label for="a-out">Your request</label>
+<textarea id="a-out" style="min-height:220px"></textarea>
+<button class="btn" id="a-copy" type="button">Copy request</button>
+</div>
 </section>
 
 </main>
@@ -251,12 +273,15 @@ function fillSelects(){
 const ml=$('#m-lead'),cur=ml.value;
 ml.replaceChildren(el('option',{value:'',textContent:'None'}),...leads.map(l=>el('option',{value:l.id,textContent:l.name})));
 ml.value=cur;
+const al=$('#a-lead'),ac=al.value;
+al.replaceChildren(el('option',{value:'',textContent:'None'}),...leads.map(l=>el('option',{value:l.id,textContent:l.name})));
+al.value=ac;
 const mp=$('#m-pkg'),pc=mp.value||'0';
 mp.replaceChildren(...offers.map((o,i)=>el('option',{value:i,textContent:o.n+' – '+o.p+' €'})));
 mp.value=pc;
 }
 
-function rAll(){rLeads();rToday();fillSelects();gen()}
+function rAll(){rLeads();rToday();fillSelects();gen();aiGen()}
 
 $('#l-add').onclick=()=>{
 const name=$('#l-name').value.trim();
@@ -292,6 +317,26 @@ $('#copy').onclick=async()=>{
 const o=$('#m-out'),b=$('#copy');
 try{await navigator.clipboard.writeText(o.value)}catch(e){o.select();document.execCommand('copy')}
 b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy message',1500);
+};
+
+function aiGen(){
+const l=leads.find(x=>x.id===$('#a-lead').value);
+const biz=l?l.name+' ('+l.type+', '+(l.city||'Germany')+')':'[business name, type, city]';
+const city=l&&l.city?l.city:'[my city]';
+const n=leads.length,c=leads.filter(x=>x.st!=='New').length,r=leads.filter(x=>['Replied','Offer sent','Won'].includes(x.st)).length;
+const T={
+check:`I am a beginner starting a business that builds simple websites for small local businesses in Germany. Please look at the online presence of ${biz} (website, Google Maps listing, social media). Tell me in simple English: 1) up to 3 concrete problems a customer would notice, 2) what a better website should show first, 3) one friendly sentence in German I could say to the owner. If you cannot find something, say so instead of guessing.`,
+find:`I am a beginner building simple websites for small local businesses in Germany. I search on Google Maps in ${city}. Give me a checklist for spotting cafés, restaurants and other local businesses with weak or missing websites, and the 5 most common website problems to write down. Do not invent business names.`,
+plan:`I am a beginner trying to win my first paying customer for my website business in Germany. I have ${n} leads, ${c} contacted, ${r} replies. I have about 45 minutes today and only my iPhone and free tools. Give me a short plan for today, in order.`,
+reply:`A business owner in Germany replied to my message about building them a website. The business is ${biz}. Their reply: [paste the reply here]. Write a short, polite answer in German (Sie-form) and explain in simple English what they mean. Do not promise anything I have not confirmed.`,
+visit:`I plan to visit ${biz} in person to offer a website. Give me a short preparation list: what to show on my phone, 3 questions to ask the owner (opening hours, menu, who decides), how to react if they say no, and how to end politely. Keep it simple.`};
+$('#a-out').value=T[$('#a-task').value];
+}
+$('#a-lead').onchange=aiGen;$('#a-task').onchange=aiGen;
+$('#a-copy').onclick=async()=>{
+const o=$('#a-out'),b=$('#a-copy');
+try{await navigator.clipboard.writeText(o.value)}catch(e){o.select();document.execCommand('copy')}
+b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy request',1500);
 };
 
 function rOffers(){
