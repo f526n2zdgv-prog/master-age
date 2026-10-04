@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17372c">
+<title>MASTER AI | Demo website generator</title>
+<style>
+:root{--ink:#17251f;--muted:#6f7c75;--line:#e5e9e3;--canvas:#f3f5f0;--paper:#fff;--forest:#17372c;--mint:#c9f27e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:15px "Avenir Next",Avenir,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:var(--forest);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px}
+.mark{width:32px;height:32px;border-radius:10px;background:var(--mint);color:#102a21;display:grid;place-items:center;font:700 19px Georgia,serif}
+header b span{color:var(--mint)}
+header a{margin-left:auto;color:#c0d0c6;font-size:13px}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font:400 28px/1.15 Georgia,serif;margin:0 0 6px}
+.sub{color:var(--muted);font-size:12px;margin:0}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:14px}
+h2{font-size:15px;margin:0 0 4px}
+label{display:block;font-size:11px;font-weight:600;color:#66746c;margin:10px 0 5px}
+input,select{width:100%;min-height:42px;border:1px solid #dfe5dd;border-radius:7px;background:#fbfcfa;padding:9px 11px}
+textarea{width:100%;min-height:160px;border:1px solid #dfe5dd;border-radius:7px;background:#fbfcfa;padding:9px 11px;font:12px monospace}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #acd766;outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13px}
+.chk input{width:20px;min-height:0;height:20px}
+.btn{min-height:42px;border:0;border-radius:7px;background:var(--forest);color:#fff;font-weight:650;padding:0 16px;margin-top:12px}
+iframe{width:100%;height:520px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-top:10px}
+.hint{color:var(--muted);font-size:12px;margin:10px 0 0}
+</style>
+</head>
+<body>
+<header><span class="mark">M</span><b>master<span>ai</span></b><a href="index.html">Back to dashboard</a></header>
+<main>
+<h1>Demo website generator</h1>
+<p class="sub">Fill in only what you know or have confirmed. Empty parts are left out.</p>
+
+<div class="card">
+<h2>Business</h2>
+<div class="row">
+<div><label for="n">Business name</label><input id="n" maxlength="60"></div>
+<div><label for="c">City</label><input id="c" maxlength="40"></div>
+</div>
+<label for="t">Short line under the name (German)</label>
+<input id="t" maxlength="120" placeholder="Kaffee, Kuchen und kleine Gerichte">
+<label for="a">Address</label><input id="a" maxlength="100">
+<label for="ph">Phone</label><input id="ph" maxlength="30" inputmode="tel">
+<label for="h">Opening hours (only if confirmed)</label>
+<input id="h" maxlength="120" placeholder="Mo–Fr 8–18 Uhr">
+</div>
+
+<div class="card">
+<h2>Menu highlights (up to 4)</h2>
+<div id="menu"></div>
+</div>
+
+<div class="card">
+<h2>Style</h2>
+<label for="pal">Colors</label>
+<select id="pal"><option value="0">Warm brown</option><option value="1">Fresh green</option><option value="2">Calm blue</option></select>
+<label for="me">Your name (for the sample note)</label><input id="me" maxlength="60">
+<label class="chk"><input type="checkbox" id="smp" checked> Mark page as a sample draft</label>
+</div>
+
+<div class="card">
+<h2>Preview</h2>
+<iframe id="pv" title="Preview"></iframe>
+<label for="out" style="margin-top:14px">Website code</label>
+<textarea id="out" readonly></textarea>
+<button class="btn" id="copy" type="button">Copy code</button>
+<p class="hint">Next: in GitHub, add a new file (for example dina.html), paste the code, and commit.</p>
+</div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PAL=[['#7a3e2b','#fbf6ee','#f0e3d0','#2b1d16'],['#2f5d46','#f4f8f1','#e3eddc','#1f2a24'],['#2b4a6f','#f3f6fa','#dfe8f2','#1b2633']];
+let me='';try{me=JSON.parse(localStorage.getItem('mai_me')||'""')}catch(e){}
+$('#me').value=me;
+const menu=$('#menu');
+for(let i=1;i<=4;i++){
+const d=document.createElement('div');d.className='row';
+d.innerHTML='<div><label for="m'+i+'">Item '+i+'</label><input id="m'+i+'" maxlength="40"></div><div><label for="d'+i+'">Short note</label><input id="d'+i+'" maxlength="60"></div>';
+menu.append(d);
+}
+const g=id=>$('#'+id).value.trim();
+function build(){
+const P=PAL[Number($('#pal').value)||0];
+const n=esc(g('n')||'Ihr Betrieb'),c=esc(g('c')),t=esc(g('t')),a=esc(g('a')),h=esc(g('h')),who=esc(g('me')||'mir');
+let p=g('ph').replace(/[^\d+]/g,'');if(p.startsWith('0'))p='+49'+p.slice(1);
+const items=[1,2,3,4].map(i=>[g('m'+i),g('d'+i)]).filter(x=>x[0]).map(x=>'<div class="item"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div>').join('');
+const note=$('#smp').checked;
+const contact=a||p;
+return `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${n}${c?' | '+c:''}</title>
+<style>
+:root{--brand:${P[0]};--bg:${P[1]};--soft:${P[2]};--ink:${P[3]}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Avenir Next",Avenir,"Segoe UI",sans-serif}
+.note{background:var(--ink);color:#fff;text-align:center;font-size:12px;padding:8px 12px}
+.hero{background:var(--brand);color:#fff;text-align:center;padding:56px 20px 48px}
+.hero h1{font:400 40px/1.1 Georgia,serif;margin:0 0 10px}
+.hero p{margin:0 auto 22px;max-width:30ch;opacity:.9}
+.btn{display:inline-block;background:#fff;color:var(--brand);font-weight:650;text-decoration:none;padding:13px 22px;border-radius:999px}
+main{max-width:640px;margin:0 auto;padding:8px 18px 40px}
+section{margin-top:34px}
+h2{font:400 26px Georgia,serif;margin:0 0 12px;color:var(--brand)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.item{background:#fff;border-radius:14px;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,.07)}
+.item b{display:block;font-size:15px}
+.item span{font-size:13px;opacity:.7}
+.box{background:var(--soft);border-radius:14px;padding:18px}
+.box p{margin:4px 0}
+a{color:var(--brand)}
+.call{display:block;text-align:center;background:var(--brand);color:#fff;text-decoration:none;font-weight:650;padding:14px;border-radius:12px;margin-top:14px}
+footer{text-align:center;opacity:.7;font-size:12px;padding:0 18px 28px}
+</style>
+</head>
+<body>
+${note?'<div class="note">Beispiel-Entwurf zur Ansicht, erstellt von '+who+'. Texte und Fotos werden gemeinsam angepasst.</div>':''}
+<header class="hero">
+<h1>${n}</h1>
+${t?'<p>'+t+'</p>':''}
+${contact?'<a class="btn" href="#kontakt">So finden Sie uns</a>':''}
+</header>
+<main>
+${items?'<section><h2>Das mögen unsere Gäste</h2><div class="grid">'+items+'</div></section>':''}
+${h?'<section><h2>Öffnungszeiten</h2><div class="box"><p>'+h+'</p></div></section>':''}
+${contact?'<section id="kontakt"><h2>Kontakt</h2><div class="box"><p><b>'+n+'</b></p>'+(a?'<p>'+a+(c?', '+c:'')+'</p>':'')+(p?'<p>Telefon: <a href="tel:'+p+'">'+esc(g('ph'))+'</a></p>':'')+'</div>'+(p?'<a class="call" href="tel:'+p+'">Jetzt anrufen</a>':'')+'</section>':''}
+</main>
+${note?'<footer>Dies ist ein Beispiel-Entwurf und keine offizielle Website von '+n+'.</footer>':''}
+</body>
+</html>`;
+}
+function update(){
+const h=build();
+$('#out').value=h;
+$('#pv').srcdoc=h;
+}
+document.querySelectorAll('input,select').forEach(e=>e.oninput=()=>{
+if(e.id==='me'){try{localStorage.setItem('mai_me',JSON.stringify(e.value))}catch(x){}}
+update();
+});
+$('#copy').onclick=async()=>{
+const o=$('#out'),b=$('#copy');
+try{await navigator.clipboard.writeText(o.value)}catch(e){o.select();document.execCommand('copy')}
+b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy code',1500);
+};
+update();
+</script>
+</body>
+</html>
